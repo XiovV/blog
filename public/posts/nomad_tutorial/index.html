@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>A Step-by-Step Guide to Deploying Docker Containers with HashiCorp Nomad and Traefik | Damir&#39;s Blog</title>
+<meta name="keywords" content="devops, nomad, hashicorp, traefik, docker">
+<meta name="description" content="Introduction In this post you will learn how to deploy highly available docker containers, load balanced with Traefik which can be accessed through your domain name (TLS included), from start to finish. We will be deploying traefik/whoami in order to keep the tutorial simple, however, this guide will work for any docker image.
+Setup If you don&rsquo;t have HashiCorp Nomad installed, please follow the official installation guide to install it.">
+<meta name="author" content="">
+<link rel="canonical" href="https://blog.damirhadzagic.com/posts/nomad_tutorial/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.4879321a85a1040010a43a83d47225cf717d7cb0d8f565bf0bfabfd9db2f9183.css" integrity="sha256-SHkyGoWhBAAQpDqD1HIlz3F9fLDY9WW/C/q/2dsvkYM=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.f413e19d0714851f6474e7ee9632408e58ac146fbdbe62747134bea2fa3415e0.js" integrity="sha256-9BPhnQcUhR9kdOfuljJAjlisFG&#43;9vmJ0cTS&#43;ovo0FeA="
+    onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://blog.damirhadzagic.com/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://blog.damirhadzagic.com/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://blog.damirhadzagic.com/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://blog.damirhadzagic.com/apple-touch-icon.png">
+<link rel="mask-icon" href="https://blog.damirhadzagic.com/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:title" content="A Step-by-Step Guide to Deploying Docker Containers with HashiCorp Nomad and Traefik" />
+<meta property="og:description" content="Introduction In this post you will learn how to deploy highly available docker containers, load balanced with Traefik which can be accessed through your domain name (TLS included), from start to finish. We will be deploying traefik/whoami in order to keep the tutorial simple, however, this guide will work for any docker image.
+Setup If you don&rsquo;t have HashiCorp Nomad installed, please follow the official installation guide to install it." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://blog.damirhadzagic.com/posts/nomad_tutorial/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-05-17T18:01:32+02:00" />
+<meta property="article:modified_time" content="2023-05-17T18:01:32+02:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="A Step-by-Step Guide to Deploying Docker Containers with HashiCorp Nomad and Traefik"/>
+<meta name="twitter:description" content="Introduction In this post you will learn how to deploy highly available docker containers, load balanced with Traefik which can be accessed through your domain name (TLS included), from start to finish. We will be deploying traefik/whoami in order to keep the tutorial simple, however, this guide will work for any docker image.
+Setup If you don&rsquo;t have HashiCorp Nomad installed, please follow the official installation guide to install it."/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "A Step-by-Step Guide to Deploying Docker Containers with HashiCorp Nomad and Traefik",
+      "item": "https://blog.damirhadzagic.com/posts/nomad_tutorial/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "A Step-by-Step Guide to Deploying Docker Containers with HashiCorp Nomad and Traefik",
+  "name": "A Step-by-Step Guide to Deploying Docker Containers with HashiCorp Nomad and Traefik",
+  "description": "Introduction In this post you will learn how to deploy highly available docker containers, load balanced with Traefik which can be accessed through your domain name (TLS included), from start to finish. We will be deploying traefik/whoami in order to keep the tutorial simple, however, this guide will work for any docker image.\nSetup If you don\u0026rsquo;t have HashiCorp Nomad installed, please follow the official installation guide to install it.",
+  "keywords": [
+    "devops", "nomad", "hashicorp", "traefik", "docker"
+  ],
+  "articleBody": "Introduction In this post you will learn how to deploy highly available docker containers, load balanced with Traefik which can be accessed through your domain name (TLS included), from start to finish. We will be deploying traefik/whoami in order to keep the tutorial simple, however, this guide will work for any docker image.\nSetup If you don’t have HashiCorp Nomad installed, please follow the official installation guide to install it.\nBefore we start deploying our docker container, we first need to set up our Nomad infrastructure.\nIt is recommended to run Nomad with at least 3 nodes, one of them running in Server mode and the other two running in Client mode.\n Server is responsible for assigning jobs to Clients. Clients are responsible for running jobs/containers.  This tutorial assumes that you have 3 linux servers available, because we will be deploying an infrastructure as described above (1 server for Server mode, and the other 2 servers for Client mode).\nServer mode setup In order to set up Nomad to run in Server mode, ssh into the server you want to use for Server mode and make sure the /etc/nomad.d/nomad.hcl config file looks like this:\ndatacenter = \"dc1\" data_dir = \"/opt/nomad/data\" bind_addr = \"0.0.0.0\" server {# license_path is required as of Nomad v1.1.1+ #license_path = \"/opt/nomad/license.hclic\"  enabled = true# number of client servers  bootstrap_expect = 2 } Now, in order to run Nomad, execute this command:\nsudo nomad agent -server -config=nomad.hcl Nomad should now be running in Server mode.\nClient mode setup In order to set up Nomad to run in Client mode, ssh into the two of your servers you want to use as Clients and make sure their /etc/nomad.d/nomad.hcl config file looks like this (make sure you use the address of your own Server node!):\ndatacenter = \"dc1\" data_dir = \"/opt/nomad/data\" bind_addr = \"0.0.0.0\" client { enabled = true# address of the Server node  servers = [\"192.168.0.79\"] } Now you can run Nomad in Client mode:\nsudo nomad agent -client -config=nomad.hcl Make sure you do this for every linux server you are planning on using as a Client.\nWebUI Once Nomad is running, you can visit the Web interface at http://[ip_of_your_server_or_client]:4646\nDeploying the container Now that our servers are ready, we can start running jobs with Nomad. In this example, we are going to deploy 5 instances of the traefik/whoami container, because we want our containers to be load balanced and highly available. First, create a file named whoami.nomad (it doesn’t matter where you create it) and write this job specification:\njob \"whoami\" { datacenters = [\"dc1\"] type = \"service\" group \"demo\" { count = 5 network { port \"http\" { to = 80 } } service { name = \"whoami-demo\" port = \"http\" provider = \"nomad\" tags = [ \"traefik.enable=true\", \"traefik.http.routers.whoami.rule=Host(`whoami.damirhadzagic.com`)\",### Tags for TLS  \"traefik.http.middlewares.myredirect.redirectscheme.scheme=https\", \"traefik.http.routers.whoami.middlewares=myredirect\", \"traefik.http.routers.whoami.entrypoints=web\", \"traefik.http.routers.whoami-secure.rule=Host(`whoami.damirhadzagic.com`)\", \"traefik.http.routers.whoami-secure.entrypoints=websecure\", \"traefik.http.routers.whoami-secure.tls.certresolver=myhttpchallenge\", \"traefik.http.routers.whoami-secure.tls=true\" ] } task \"server\" { env { WHOAMI_PORT_NUMBER = \"${NOMAD_PORT_http}\" } driver = \"docker\" config { image = \"traefik/whoami\" ports = [\"http\"] } } } } The job specification above tells Nomad that we want to run 5 containers using the traefik/whoami image. We have told it which internal port to use, which is in our case port 80. We did not set up which port it should bind to because Nomad will do that dynamically for us. We have also set up tags for traefik, which we will deploy later. Make sure you use your own domain name.\nNow that our job specification is ready, we can run it:\nnomad job run whoami.nomad While the job is running, you can go to the WebUI and watch as the containers are being deployed (Jobs - whoami). If everything has gone well, you should see this: If you want to, you can run docker ps on your Client machines, and you should be able to see the containers we just deployed. As you can see, Nomad deployed 2 containers on my lab1 VM, and 3 containers on my lab2 VM. Pretty cool, right?\nNow that we have deployed our containers, it’s time to load balance them via Traefik.\nDeploying Traefik To deploy Traefik, all we have to do is create another job for Nomad to run. Create a file called whoami.nomad and write this job specification:\njob \"traefik\" { datacenters = [\"dc1\"] type = \"service\" group \"traefik\" { count = 1 network { port \"http\" { static = 80 } port \"https\" { static = 443 } port \"admin\" { static = 8080 } } service { name = \"traefik-http\" provider = \"nomad\" port = \"http\" } task \"server\" { driver = \"docker\" config { image = \"traefik:2.9\" ports = [\"admin\", \"http\", \"https\"] args = [ \"--api.dashboard=true\", \"--api.insecure=true\",### For Test only, please do not use that in production  \"--entrypoints.web.address=:${NOMAD_PORT_http}\", \"--entrypoints.traefik.address=:${NOMAD_PORT_admin}\", \"--entrypoints.websecure.address=:${NOMAD_PORT_https}\", \"--certificatesresolvers.myhttpchallenge.acme.httpchallenge=true\", \"--certificatesresolvers.myhttpchallenge.acme.httpchallenge.entrypoint=web\", \"--certificatesresolvers.myhttpchallenge.acme.email=example@email.com\", \"--certificatesresolvers.myhttpchallenge.acme.storage=/letsencrypt/acme.json\", \"--providers.nomad=true\", \"--providers.nomad.endpoint.address=http://192.168.0.79:4646\"### IP to your nomad server  ] volumes = [ \"letsencrypt:/letsencrypt\" ] } } } } Make sure you use your own email address and the IP address of your own Nomad node running in Server mode.\nNow deploy traefik by running the following command:\nnomad job run traefik.nomad Nomad will pick a server to run traefik on, and once it successfully deploys it, visit the dashboard on port 8080. If you want to find out where Nomad deployed traefik, go to Nomad’s WebUI - Jobs - traefik - Recent Allocations - Click on the most recent allocation - Scroll until you see Ports: In my case Nomad deployed traefik on 192.168.0.42 (which is my lab2 VM), so let’s visit the dashboard at http://192.168.0.42:8080: The dashboard loaded successfully which is a good sign, let’s now click on the HTTP tab so we can check if traefik wired everything up correctly. Once you’ve clicked on the HTTP tab, click on the router that’s marked with the green TLS icon: Now click on the whoami-demo service: On the right you can see our 5 containers we deployed earlier, this means that traefik has managed to successfully “wire” everything up: Testing Now it’s time to test if everything works. Head on over to https://yourdomain.com (make sure port 443 is open!) and you should see something like this: Look at the Hostname field at the top, every time you refresh the page its value will change, which means that traefik is routing requests to different containers, which is exactly what we want.\nThe End This is it! Congratulations, you have successfully deployed 5 instances of a container, on two different servers, load balanced with traefik, with TLS as well!\n",
+  "wordCount" : "1083",
+  "inLanguage": "en",
+  "datePublished": "2023-05-17T18:01:32+02:00",
+  "dateModified": "2023-05-17T18:01:32+02:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://blog.damirhadzagic.com/posts/nomad_tutorial/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Damir's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://blog.damirhadzagic.com/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://blog.damirhadzagic.com" accesskey="h" title="Damir&#39;s Blog (Alt + H)">Damir&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://blog.damirhadzagic.com/categories/" title="Categories">
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://blog.damirhadzagic.com/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title">
+      A Step-by-Step Guide to Deploying Docker Containers with HashiCorp Nomad and Traefik
+    </h1>
+    <div class="post-meta"><span title='2023-05-17 18:01:32 +0200 CEST'>May 17, 2023</span>&nbsp;·&nbsp;6 min
+
+</div>
+  </header> 
+  <div class="post-content"><h1 id="introduction">Introduction<a hidden class="anchor" aria-hidden="true" href="#introduction">#</a></h1>
+<p>In this post you will learn how to deploy highly available docker containers, load balanced with Traefik which can be accessed through your domain name (TLS included), from start to finish.
+We will be deploying <a href="https://hub.docker.com/r/traefik/whoami">traefik/whoami</a> in order to keep the tutorial simple, however, this guide will work for any docker image.</p>
+<h1 id="setup">Setup<a hidden class="anchor" aria-hidden="true" href="#setup">#</a></h1>
+<p>If you don&rsquo;t have HashiCorp Nomad installed, please follow the <a href="https://developer.hashicorp.com/nomad/tutorials/get-started/gs-install">official installation guide</a> to install it.</p>
+<p>Before we start deploying our docker container, we first need to set up our Nomad infrastructure.<br>
+It is recommended to run Nomad with at least 3 nodes, one of them running in <strong>Server</strong> mode and the other two running in <strong>Client</strong> mode.</p>
+<ul>
+<li><strong>Server</strong>  is responsible for assigning jobs to <strong>Clients</strong>.</li>
+<li><strong>Clients</strong> are responsible for running jobs/containers.</li>
+</ul>
+<p>This tutorial assumes that you have 3 linux servers available, because we will be deploying an infrastructure as described above (1 server for <strong>Server</strong> mode, and the other 2 servers for <strong>Client</strong> mode).</p>
+<h2 id="server-mode-setup">Server mode setup<a hidden class="anchor" aria-hidden="true" href="#server-mode-setup">#</a></h2>
+<p>In order to set up Nomad to run in Server mode, ssh into the server you want to use for <strong>Server</strong> mode and make sure the <code>/etc/nomad.d/nomad.hcl</code> config file looks like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl">datacenter <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;dc1&#34;</span>
+data_dir  <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/opt/nomad/data&#34;</span>
+bind_addr <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;0.0.0.0&#34;</span>
+
+<span style="color:#66d9ef">server</span> {<span style="color:#75715e">
+</span><span style="color:#75715e">  # license_path is required as of Nomad v1.1.1+
+</span><span style="color:#75715e">  #license_path = &#34;/opt/nomad/license.hclic&#34;
+</span><span style="color:#75715e"></span>  enabled          <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#75715e">
+</span><span style="color:#75715e">  # number of client servers
+</span><span style="color:#75715e"></span>  bootstrap_expect <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>
+}
+</code></pre></div><p>Now, in order to run Nomad, execute this command:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sudo nomad agent -server -config<span style="color:#f92672">=</span>nomad.hcl
+</code></pre></div><p>Nomad should now be running in Server mode.</p>
+<h2 id="client-mode-setup">Client mode setup<a hidden class="anchor" aria-hidden="true" href="#client-mode-setup">#</a></h2>
+<p>In order to set up Nomad to run in Client mode, ssh into the two of your servers you want to use as Clients and make sure their <code>/etc/nomad.d/nomad.hcl</code> config file looks like this (make sure you use the address of your own Server node!):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl">datacenter <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;dc1&#34;</span>
+data_dir  <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/opt/nomad/data&#34;</span>
+bind_addr <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;0.0.0.0&#34;</span>
+
+<span style="color:#66d9ef">client</span> {
+  enabled <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#75715e">
+</span><span style="color:#75715e">  # address of the Server node
+</span><span style="color:#75715e"></span>  servers <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;192.168.0.79&#34;</span>]
+}
+</code></pre></div><p>Now you can run Nomad in Client mode:</p>
+<pre><code>sudo nomad agent -client -config=nomad.hcl
+</code></pre><p>Make sure you do this for every linux server you are planning on using as a <strong>Client</strong>.</p>
+<h2 id="webui">WebUI<a hidden class="anchor" aria-hidden="true" href="#webui">#</a></h2>
+<p>Once Nomad is running, you can visit the Web interface at http://[ip_of_your_server_or_client]:4646</p>
+<h1 id="deploying-the-container">Deploying the container<a hidden class="anchor" aria-hidden="true" href="#deploying-the-container">#</a></h1>
+<p>Now that our servers are ready, we can start running jobs with Nomad. In this example, we are going to deploy 5 instances of the <a href="https://hub.docker.com/r/traefik/whoami">traefik/whoami</a> container, because we want our containers to be load balanced and highly available. First, create a file named <code>whoami.nomad</code> (it doesn&rsquo;t matter where you create it) and write this job specification:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#66d9ef">job</span> <span style="color:#e6db74">&#34;whoami&#34;</span> {
+  datacenters <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;dc1&#34;</span>]
+
+  type <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;service&#34;</span>
+
+  <span style="color:#66d9ef">group</span> <span style="color:#e6db74">&#34;demo&#34;</span> {
+    count <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>
+
+    <span style="color:#66d9ef">network</span> {
+       <span style="color:#66d9ef">port</span> <span style="color:#e6db74">&#34;http&#34;</span> {
+         to <span style="color:#f92672">=</span> <span style="color:#ae81ff">80</span>
+       }
+    }
+
+    <span style="color:#66d9ef">service</span> {
+      name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;whoami-demo&#34;</span>
+      port <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http&#34;</span>
+      provider <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;nomad&#34;</span>
+
+      tags <span style="color:#f92672">=</span> [
+        &#34;traefik.enable<span style="color:#f92672">=</span><span style="color:#66d9ef">true</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,
+        &#34;traefik.http.routers.whoami.rule<span style="color:#f92672">=</span><span style="color:#66d9ef">Host</span>(<span style="color:#960050;background-color:#1e0010">`</span><span style="color:#66d9ef">whoami</span>.<span style="color:#66d9ef">damirhadzagic</span>.<span style="color:#66d9ef">com</span><span style="color:#960050;background-color:#1e0010">`</span>)<span style="color:#960050;background-color:#1e0010">&#34;</span>,<span style="color:#75715e">
+</span><span style="color:#75715e">
+</span><span style="color:#75715e">        ### Tags for TLS
+</span><span style="color:#75715e"></span>        &#34;traefik.http.middlewares.myredirect.redirectscheme.scheme<span style="color:#f92672">=</span><span style="color:#66d9ef">https</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,
+        &#34;traefik.http.routers.whoami.middlewares<span style="color:#f92672">=</span><span style="color:#66d9ef">myredirect</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,
+        &#34;traefik.http.routers.whoami.entrypoints<span style="color:#f92672">=</span><span style="color:#66d9ef">web</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,
+        &#34;traefik.http.routers.whoami-secure.rule<span style="color:#f92672">=</span><span style="color:#66d9ef">Host</span>(<span style="color:#960050;background-color:#1e0010">`</span><span style="color:#66d9ef">whoami</span>.<span style="color:#66d9ef">damirhadzagic</span>.<span style="color:#66d9ef">com</span><span style="color:#960050;background-color:#1e0010">`</span>)<span style="color:#960050;background-color:#1e0010">&#34;</span>,
+        &#34;traefik.http.routers.whoami-secure.entrypoints<span style="color:#f92672">=</span><span style="color:#66d9ef">websecure</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,
+        &#34;traefik.http.routers.whoami-secure.tls.certresolver<span style="color:#f92672">=</span><span style="color:#66d9ef">myhttpchallenge</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,
+        &#34;traefik.http.routers.whoami-secure.tls<span style="color:#f92672">=</span><span style="color:#66d9ef">true</span><span style="color:#960050;background-color:#1e0010">&#34;</span>
+      ]
+    }
+
+    <span style="color:#66d9ef">task</span> <span style="color:#e6db74">&#34;server&#34;</span> {
+      <span style="color:#66d9ef">env</span> {
+        WHOAMI_PORT_NUMBER <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;${NOMAD_PORT_http}&#34;</span>
+      }
+
+      driver <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;docker&#34;</span>
+
+      <span style="color:#66d9ef">config</span> {
+        image <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;traefik/whoami&#34;</span>
+        ports <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;http&#34;</span>]
+      }
+    }
+  }
+}
+</code></pre></div><p>The job specification above tells Nomad that we want to run 5 containers using the <a href="https://hub.docker.com/r/traefik/whoami">traefik/whoami</a> image. We have told it which <strong>internal</strong> port to use, which is in our case port 80. We did not set up which port it should bind to because Nomad will do that dynamically for us. We have also set up tags for traefik, which we will deploy later. Make sure you use your own domain name.<br>
+Now that our job specification is ready, we can run it:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">nomad job run whoami.nomad
+</code></pre></div><p>While the job is running, you can go to the WebUI and watch as the containers are being deployed (Jobs -&gt; whoami). If everything has gone well, you should see this:
+<img loading="lazy" src="/img/whoami_deployment.png#center" alt="whoami job status"  />
+</p>
+<p>If you want to, you can run <code>docker ps</code> on your <strong>Client</strong> machines, and you should be able to see the containers we just deployed.
+<img loading="lazy" src="/img/lab1.png#center" alt="lab1"  />
+
+<img loading="lazy" src="/img/lab2.png#center" alt="lab2"  />
+
+As you can see, Nomad deployed 2 containers on my lab1 VM, and 3 containers on my lab2 VM. Pretty cool, right?<br>
+Now that we have deployed our containers, it&rsquo;s time to load balance them via Traefik.</p>
+<h1 id="deploying-traefik">Deploying Traefik<a hidden class="anchor" aria-hidden="true" href="#deploying-traefik">#</a></h1>
+<p>To deploy Traefik, all we have to do is create another job for Nomad to run. Create a file called <code>whoami.nomad</code> and write this job specification:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-hcl" data-lang="hcl"><span style="color:#66d9ef">job</span> <span style="color:#e6db74">&#34;traefik&#34;</span> {
+  datacenters <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;dc1&#34;</span>]
+  type        <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;service&#34;</span>
+
+  <span style="color:#66d9ef">group</span> <span style="color:#e6db74">&#34;traefik&#34;</span> {
+    count <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+
+    <span style="color:#66d9ef">network</span> {
+      <span style="color:#66d9ef">port</span> <span style="color:#e6db74">&#34;http&#34;</span> {
+         static <span style="color:#f92672">=</span> <span style="color:#ae81ff">80</span>
+      }
+      
+      <span style="color:#66d9ef">port</span> <span style="color:#e6db74">&#34;https&#34;</span> {
+         static <span style="color:#f92672">=</span> <span style="color:#ae81ff">443</span>
+      }
+
+      <span style="color:#66d9ef">port</span> <span style="color:#e6db74">&#34;admin&#34;</span> {
+         static <span style="color:#f92672">=</span> <span style="color:#ae81ff">8080</span>
+      }
+    }
+
+    <span style="color:#66d9ef">service</span> {
+      name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;traefik-http&#34;</span>
+      provider <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;nomad&#34;</span>
+      port <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http&#34;</span>
+    }
+
+    <span style="color:#66d9ef">task</span> <span style="color:#e6db74">&#34;server&#34;</span> {
+      driver <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;docker&#34;</span>
+      <span style="color:#66d9ef">config</span> {
+        image <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;traefik:2.9&#34;</span>
+        ports <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;admin&#34;, &#34;http&#34;, &#34;https&#34;</span>]
+        args <span style="color:#f92672">=</span> [
+          &#34;--api.dashboard<span style="color:#f92672">=</span><span style="color:#66d9ef">true</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,
+          &#34;--api.insecure<span style="color:#f92672">=</span><span style="color:#66d9ef">true</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,<span style="color:#75715e"> ### For Test only, please do not use that in production
+</span><span style="color:#75715e"></span>          &#34;--entrypoints.web.address<span style="color:#f92672">=</span><span style="color:#960050;background-color:#1e0010">:</span><span style="color:#e6db74">${</span><span style="color:#960050;background-color:#1e0010">NOMAD_PORT_http</span><span style="color:#e6db74">}</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,
+          &#34;--entrypoints.traefik.address<span style="color:#f92672">=</span><span style="color:#960050;background-color:#1e0010">:</span><span style="color:#e6db74">${</span><span style="color:#960050;background-color:#1e0010">NOMAD_PORT_admin</span><span style="color:#e6db74">}</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,
+          &#34;--entrypoints.websecure.address<span style="color:#f92672">=</span><span style="color:#960050;background-color:#1e0010">:</span><span style="color:#e6db74">${</span><span style="color:#960050;background-color:#1e0010">NOMAD_PORT_https</span><span style="color:#e6db74">}</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,
+          &#34;--certificatesresolvers.myhttpchallenge.acme.httpchallenge<span style="color:#f92672">=</span><span style="color:#66d9ef">true</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,
+          &#34;--certificatesresolvers.myhttpchallenge.acme.httpchallenge.entrypoint<span style="color:#f92672">=</span><span style="color:#66d9ef">web</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,
+          &#34;--certificatesresolvers.myhttpchallenge.acme.email<span style="color:#f92672">=</span><span style="color:#66d9ef">example</span><span style="color:#960050;background-color:#1e0010">@</span><span style="color:#66d9ef">email</span>.<span style="color:#66d9ef">com</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,
+          &#34;--certificatesresolvers.myhttpchallenge.acme.storage<span style="color:#f92672">=</span><span style="color:#960050;background-color:#1e0010">/</span><span style="color:#66d9ef">letsencrypt</span><span style="color:#960050;background-color:#1e0010">/</span><span style="color:#66d9ef">acme</span>.<span style="color:#66d9ef">json</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,
+          &#34;--providers.nomad<span style="color:#f92672">=</span><span style="color:#66d9ef">true</span><span style="color:#960050;background-color:#1e0010">&#34;</span>,
+          &#34;--providers.nomad.endpoint.address<span style="color:#f92672">=</span><span style="color:#66d9ef">http</span><span style="color:#960050;background-color:#1e0010">://</span><span style="color:#ae81ff">192</span>.<span style="color:#ae81ff">168</span>.<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">79</span><span style="color:#960050;background-color:#1e0010">:</span><span style="color:#ae81ff">4646</span><span style="color:#960050;background-color:#1e0010">&#34;</span><span style="color:#75715e"> ### IP to your nomad server
+</span><span style="color:#75715e"></span>        ]
+
+       volumes <span style="color:#f92672">=</span> [
+         <span style="color:#e6db74">&#34;letsencrypt:/letsencrypt&#34;</span>
+       ]
+      }
+    }
+  }
+}
+</code></pre></div><p>Make sure you use your own email address and the IP address of your own Nomad node running in <strong>Server</strong> mode.<br>
+Now deploy traefik by running the following command:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">nomad job run traefik.nomad
+</code></pre></div><p>Nomad will pick a server to run traefik on, and once it successfully deploys it, visit the dashboard on port 8080. If you want to find out where Nomad deployed traefik, go to Nomad&rsquo;s WebUI -&gt; Jobs -&gt; traefik -&gt; Recent Allocations -&gt; Click on the most recent allocation -&gt; Scroll until you see Ports:
+<img loading="lazy" src="/img/traefik_ports.png" alt="traefik ports"  />
+</p>
+<p>In my case Nomad deployed traefik on 192.168.0.42 (which is my lab2 VM), so let&rsquo;s visit the dashboard at http://192.168.0.42:8080:
+<img loading="lazy" src="/img/traefik_dashboard.png" alt="traefik dashboard"  />
+
+The dashboard loaded successfully which is a good sign, let&rsquo;s now click on the HTTP tab so we can check if traefik wired everything up correctly. Once you&rsquo;ve clicked on the HTTP tab, click on the router that&rsquo;s marked with the green TLS icon:
+<img loading="lazy" src="/img/http_tab.png" alt="http tab"  />
+
+Now click on the whoami-demo service:
+<img loading="lazy" src="/img/traefik_service.png" alt="traefik service"  />
+
+On the right you can see our 5 containers we deployed earlier, this means that traefik has managed to successfully &ldquo;wire&rdquo; everything up:
+<img loading="lazy" src="/img/traefik_servers.png" alt="traefik servers"  />
+</p>
+<h1 id="testing">Testing<a hidden class="anchor" aria-hidden="true" href="#testing">#</a></h1>
+<p>Now it&rsquo;s time to test if everything works. Head on over to <a href="https://yourdomain.com">https://yourdomain.com</a> (make sure port 443 is open!) and you should see something like this:
+<img loading="lazy" src="/img/whoami.png" alt="whoami"  />
+
+Look at the Hostname field at the top, every time you refresh the page its value will change, which means that traefik is routing requests to different containers, which is exactly what we want.</p>
+<h1 id="the-end">The End<a hidden class="anchor" aria-hidden="true" href="#the-end">#</a></h1>
+<p>This is it! Congratulations, you have successfully deployed 5 instances of a container, on two different servers, load balanced with traefik, with TLS as well!</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://blog.damirhadzagic.com/tags/devops/">devops</a></li>
+      <li><a href="https://blog.damirhadzagic.com/tags/docker/">docker</a></li>
+      <li><a href="https://blog.damirhadzagic.com/tags/hashicorp/">hashicorp</a></li>
+      <li><a href="https://blog.damirhadzagic.com/tags/nomad/">nomad</a></li>
+      <li><a href="https://blog.damirhadzagic.com/tags/traefik/">traefik</a></li>
+    </ul>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+    <span>&copy; 2023 <a href="https://blog.damirhadzagic.com">Damir&#39;s Blog</a></span>
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
