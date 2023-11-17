@@ -1,8 +1,8 @@
 # Welcome to the Gopher's tunnel!
 
-## whoami
+## $ whoami
 ![Gopher thinking](/img/gopher-thinking.png){ align=right }
-I am a 22 year old software developer who loves to tinker around with technology and learn new things. If I am not writing code, I am either experimenting in my homelab, taking longs walks or reading. 
+I am a 22 year old software developer who loves to tinker around with technology and learn new things. If I am not writing code, I am either experimenting in my homelab (the networking and server kind, not *that* kind you silly goose), taking longs walks or reading. 
 
 ## Why the blog?
 The biggest reason why I created this blog is because I want to document the things I'm doing and share them publicly, in hopes that it will help me solidify my knowledge, and that you, the reader, can learn something from them. I will be writing about anything technology related, from web development to reverse engineering and hacking around with C/C++. 
