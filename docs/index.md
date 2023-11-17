@@ -1,7 +1,7 @@
 # Welcome to the Gopher's burrow!
 
 ## $ whoami
-![Gopher thinking](/img/gopher-thinking.png){ align=right }
+![Gopher thinking](assets/images/gopher-thinking.png){ align=right }
 I am a 22 year old software developer who loves to tinker around with technology and learn new things. If I am not writing code, I am either experimenting in my homelab (the networking and server kind, not *that* kind you silly goose), taking longs walks or reading. 
 
 ## Why the blog?
