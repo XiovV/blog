@@ -23,5 +23,5 @@ nav:
      - Deploying Docker Containers with HashiCorp Nomad and Traefik: devops/nomad/nomad_tutorial.md
   
   - Binary Exploatation:
-     - Buffer Overflow: binary_exploatation/buffer_overflow.md
+     - Buffer Overflow*: binary_exploatation/buffer_overflow.md
 

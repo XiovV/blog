@@ -3,7 +3,10 @@ In this post you will learn how to deploy highly available docker containers, lo
 We will be deploying [traefik/whoami](https://hub.docker.com/r/traefik/whoami) in order to keep the tutorial simple, however, this guide will work for any docker image.
 
 ## Setup
-If you don't have HashiCorp Nomad installed, please follow the [official installation guide](https://developer.hashicorp.com/nomad/tutorials/get-started/gs-install) to install it.
+!!! note
+    If you don't have HashiCorp Nomad installed, please follow the [official installation guide](https://developer.hashicorp.com/nomad/tutorials/get-started/gs-install) to install it.
+
+
 
 Before we start deploying our docker container, we first need to set up our Nomad infrastructure.
 
@@ -12,7 +15,8 @@ It is recommended to run Nomad with at least 3 nodes, one of them running in **S
 - **Server**  is responsible for assigning jobs to **Clients**.
 - **Clients** are responsible for running jobs/containers.
 
-This tutorial assumes that you have 3 linux servers available, because we will be deploying an infrastructure as described above (1 server for **Server** mode, and the other 2 servers for **Client** mode).
+!!!note
+    This tutorial assumes that you have 3 linux servers available, because we will be deploying an infrastructure as described above (1 server for **Server** mode, and the other 2 servers for **Client** mode).
 
 ## Server mode setup
 In order to set up Nomad to run in Server mode, ssh into the server you want to use for **Server** mode and make sure the `/etc/nomad.d/nomad.hcl` config file looks like this:
@@ -52,7 +56,9 @@ Now you can run Nomad in Client mode:
 ```
 sudo nomad agent -client -config=nomad.hcl
 ```
-Make sure you do this for every linux server you are planning on using as a **Client**.
+
+!!! warning
+    Make sure you do this for every linux server you are planning on using as a **Client**.
 
 ## WebUI
 Once Nomad is running, you can visit the Web interface at http://[ip_of_your_server_or_client]:4646
