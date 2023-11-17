@@ -1,17 +1,11 @@
-# Welcome to MkDocs
+# Welcome to the Gopher's tunnel!
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+## whoami
+![Gopher thinking](/img/gopher-thinking.png){ align=right }
+I am a 22 year old software developer who loves to tinker around with technology and learn new things. If I am not writing code, I am either experimenting in my homelab, taking longs walks or reading. 
 
-## Commands
+## Why the blog?
+The biggest reason why I created this blog is because I want to document the things I'm doing and share them publicly, in hopes that it will help me solidify my knowledge, and that you, the reader, can learn something from them. I will be writing about anything technology related, from web development to reverse engineering and hacking around with C/C++. 
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+!!! note "What does "Gopher's Tunnel" mean?"
+    My favourite programming language is [Go](https://go.dev), so naturally I like the mascot, [Gopher](https://go.dev/blog/gopher). Since real life gophers dig tunnels and live inside them, I decided to call the blog "Gopher's Tunnel".
