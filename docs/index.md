@@ -9,3 +9,7 @@ The biggest reason why I created this blog is because I want to document the thi
 
 !!! note "What does "Gopher's Tunnel" mean?"
     My favourite programming language is [Go](https://go.dev), so naturally I like the mascot, [Gopher](https://go.dev/blog/gopher). Since real life gophers dig tunnels and live inside them, I decided to call the blog "Gopher's Tunnel".
+
+## Shoutout
+A massive shoutout goes to [Crow](https://www.crow.rip) for inspiring me to start this blog.
+Check out his [YouTube Channel](https://www.youtube.com/@crr0ww) for some amazing malware development content.
