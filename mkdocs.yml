@@ -28,6 +28,16 @@ nav:
 
   - Game Hacking:
       - Introduction: game_hacking/introduction
-      - Getting a handle to a process*: binary_exploatation/buffer_overflow
-      - Reading memory*: binary_exploatation/buffer_overflow
-      - Writing memory*: binary_exploatation/buffer_overflow
+      - Cheat Engine*:
+          - Scanning for values*: binary_exploatation/buffer_overflow
+          - Defeating DMA*: binary_exploatation/buffer_overflow
+      - External Cheats*:
+          - Getting a handle to a process*: binary_exploatation/buffer_overflow
+          - Reading memory*: binary_exploatation/buffer_overflow
+          - Writing memory*: binary_exploatation/buffer_overflow
+      - Internal Cheats*:
+          - Writing our own DLL*: binary_exploatation/buffer_overflow
+          - DLL Injection*: binary_exploatation/buffer_overflow
+          - Reading memory*: binary_exploatation/buffer_overflow
+          - Writing memory*: binary_exploatation/buffer_overflow
+
