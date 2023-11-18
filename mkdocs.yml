@@ -26,3 +26,8 @@ nav:
   - Binary Exploatation:
      - Buffer Overflow*: binary_exploatation/buffer_overflow.md
 
+  - Game Hacking:
+      - Introduction*: binary_exploatation/buffer_overflow
+      - Getting a handle to a process*: binary_exploatation/buffer_overflow
+      - Reading memory*: binary_exploatation/buffer_overflow
+      - Writing memory*: binary_exploatation/buffer_overflow
