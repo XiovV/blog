@@ -93,3 +93,28 @@ int main()
     getchar();
 }
 ```
+
+## Testing with Cheat Engine
+This is what the output should be after we run our program (your addresses will probably differ):
+
+![mlp console](/assets/images/mlp-console1.png)
+
+Perfect, everything seems to be running, let's have some fun with Cheat Engine now. Let's add the primaryWeaponAmmo address into CE:
+
+![mlp cheat engine](/assets/images/mlp-ce1.png)
+
+Great! After typing in the address we see that Cheat Engine resolves is to the value 100, which is exactly what we set in our `Ammo` struct. Now let's restart our program and see what's going to happen:
+
+![mlp console](/assets/images/mlp-console2.png)
+
+Hmm, okay, our localPlayer pointer is the same, but our primaryWeaponAmmo address has changed. Let's re-attach Cheat Engine to our program and see what's going to happen:
+
+![mlp cheat engine](/assets/images/mlp-ce2.png)
+
+Uh oh! That's not good. As the address of the primaryWeaponAmmo variable has changed, the address we used previously doesn't work anymore. This is due to Dynamic Memory Allocation (DMA).
+
+## Dynamic Memory Allocation (DMA)
+TODO: add a DMA explanation here.
+
+This is where multi-level pointers come in.
+
