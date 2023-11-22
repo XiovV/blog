@@ -118,3 +118,28 @@ TODO: add a DMA explanation here.
 
 This is where multi-level pointers come in.
 
+## Using multi-level pointers
+When we ran our program for the second time, we noted that the localPlayer pointer has stayed the same. Which is great news for us, because we can use that fact to find our primaryWeaponAmmo value. Let's see how that's done in Cheat Engine:
+
+![mlp cheat engine](/assets/images/mlp-ce3.png)
+
+We put in the localPlayer address in the bottom field, then we add all four of our offsets. Cheat Engine gives us a breakdown of what it's doing.
+
+!!! note
+    Since we wrote this program ourselves, we know all of the offsets. In a real life scenario, you'd need to find them out manually. Check out [Defeating DMA](/binary_exploatation/buffer_overflow) to learn how to do that.
+
+Our 0x9A5434 address (localPlayer) points to 0x00EFB6B0, then when we add the 0x4 offset to that address [0x00EFB6B0 + 4], which then points to 0x00EFB518. Then we add the 0x8 offset to that address [0x00EFB518 + 8], which then points to 0x00EF4738, so on and so forth, until we hit our final address (0x00EF4F38) which holds our primaryWeaponAmmo value.
+
+Now, if we were to restart our program, all of these addresses (0x00EFB6B0, 0x00EFB518, 0x00EF4738, etc...) would be different, which is exactly the reason why we need a static base address (the localPlayer address in our case), and all of the offsets. We can then use that base address and the offsets to create a path to our desired value. 
+
+As we do have a static base address and the offsets, we can safely assume that Cheat Engine will successfully get our primaryWeaponAmmo value even after we restart our program. Restart your program and re-attach Cheat Engine:
+
+![mlp cheat engine](/assets/images/mlp-ce4.png)
+
+And sure enough, it works! Let's take a look at how CE is resolving the pointers:
+
+![mlp cheat engine](/assets/images/mlp-ce5.png)
+
+As you can see, the pointers are indeed different, but despite that CE still managed to get our primaryWeaponAmmo value correctly. It was able to do that because it created a path from our static localPlayer address to the primaryWeaponAmmo variable using the offsets.
+
+
