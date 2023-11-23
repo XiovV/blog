@@ -46,7 +46,6 @@ nav:
   - Game Hacking:
       - Introduction: game_hacking/introduction
       - Basics:
-          - Scanning for values in Cheat Engine*: binary_exploatation/buffer_overflow
           - Multi-Level Pointers: game_hacking/multi_level_pointers.md
           - Defeating DMA*: binary_exploatation/buffer_overflow
       - External Cheats (C++):
