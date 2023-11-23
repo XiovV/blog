@@ -103,7 +103,7 @@ Perfect, everything seems to be running, let's have some fun with Cheat Engine n
 
 ![mlp cheat engine](/assets/images/mlp-ce1.png)
 
-Great! After typing in the address we see that Cheat Engine resolves is to the value 100, which is exactly what we set in our `Ammo` struct. Now let's restart our program and see what's going to happen:
+Great! After typing in the address we see that Cheat Engine resolves it to the value 100, which is exactly what we set in our `Ammo` struct. Now let's restart our program and see what's going to happen:
 
 ![mlp console](/assets/images/mlp-console2.png)
 
@@ -114,12 +114,23 @@ Hmm, okay, our localPlayer pointer is the same, but our primaryWeaponAmmo addres
 Uh oh! That's not good. As the address of the primaryWeaponAmmo variable has changed, the address we used previously doesn't work anymore. This is due to Dynamic Memory Allocation (DMA).
 
 ## Dynamic Memory Allocation (DMA)
-TODO: add a DMA explanation here.
+Take a look at this code:
 
-This is where multi-level pointers come in.
+```cpp title="mlp.cpp"
+localPlayer = new Actor();
+localPlayer->player = new Player();
+localPlayer->player->inventory = new Inventory();
+localPlayer->player->inventory->ammo = new Ammo();
+```
+
+Every time we used the `new` keyword to initialise an instance of a struct, our program asked the OS to allocate some memory. That memory gets allocated on the [heap](https://www.programmerinterview.com/data-structures/difference-between-stack-and-heap), and the issue is, our program can't pick where to allocate the memory, it can only ask the OS to allocate it. That is an issue for us, because we can't guarantee that the OS will allocate the memory on the same addresses every time we initialise a struct.
+
+Now, you might be asking yourself: Okay, but why is our `localPlayer` address the same despite all this DMA stuff? 
+
+And that's a great question, which we have the answer to: We defined `localPlayer` as a global variable, and global variables are stored in something called the data segment. The addresses of global variables are determined at **compile time**, which means that every time we run the program the address will stay the same, despite DMA, because the address has already been determined when we compiled the program. However, if you were to make a change and re-compile the program, the address of `localPlayer` will change. This is why you need to find new offsets when a game updates (sometimes, but more often than not).
 
 ## Using multi-level pointers
-When we ran our program for the second time, we noted that the localPlayer pointer has stayed the same. Which is great news for us, because we can use that fact to find our primaryWeaponAmmo value. Let's see how that's done in Cheat Engine:
+When we ran our program for the second time, we noted that the `localPlayer` pointer has stayed the same. Which is great news for us, because we can use that fact to find our primaryWeaponAmmo value. Let's see how that's done in Cheat Engine:
 
 ![mlp cheat engine](/assets/images/mlp-ce3.png)
 
@@ -142,4 +153,7 @@ And sure enough, it works! Let's take a look at how CE is resolving the pointers
 
 As you can see, the pointers are indeed different, but despite that CE still managed to get our primaryWeaponAmmo value correctly. It was able to do that because it created a path from our static localPlayer address to the primaryWeaponAmmo variable using the offsets.
 
-
+## Resources
+- [Multi Level Pointers In Depth Analysis Tutorial](https://www.youtube.com/watch?v=0iOxUOaogb8)
+- [Dynamic Memory Allocation by Game Hacking Academy](https://gamehacking.academy/lesson/2/8)
+- [What's the difference between a stack and a heap?](https://www.programmerinterview.com/data-structures/difference-between-stack-and-heap)
