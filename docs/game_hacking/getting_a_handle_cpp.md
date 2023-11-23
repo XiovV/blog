@@ -125,8 +125,41 @@ int main(int argc, char** argv) {
 
 First we find the window with the name "game.exe", then we use it to get the process id, then we use the process id to get the handle and we set the `PROCESS_VM_READ` and `PROCESS_VM_WRITE` access rights. After that we do a bit of error handling where we show an error message if the handle couldn't be obtained. 
 
-If you run the program, you should see this:
+Before you run this program, make sure you compile and run the source code of our target program shown at the very start of this post. If everything goes as planned, you should see this:
 
 ![handle](/assets/images/external-handle.png)
 
-Great, we successfully got the handle to our game! Now we're ready to start playing around with the memory.
+Great, we successfully got the handle to our game!
+
+Now we can wrap this inside of a function to clean things up a bit:
+
+```cpp title="external.cpp"
+#include <windows.h>
+#include <iostream>
+
+HANDLE GetProcessHandle(DWORD dwDesiredAccess, const char* windowName) {
+	HWND gameWindow = FindWindowA(NULL, windowName);
+
+	DWORD gameProcessId = 0;
+	GetWindowThreadProcessId(gameWindow, &gameProcessId);
+
+	return OpenProcess(dwDesiredAccess, false, gameProcessId);
+}
+
+int main(int argc, char** argv) {
+	const char* windowName = "game.exe";
+
+	HANDLE hGame = GetProcessHandle(PROCESS_VM_READ | PROCESS_VM_WRITE, windowName);
+	if (!hGame) {
+		std::cout << "Could not get the handle to " << windowName << ", make sure it's running!" << std::endl;
+
+		return 1;
+	}
+
+	std::cout << "Successfully got the handle to " << windowName << ": " << "0x" << &hGame << std::endl;
+
+	return 0;
+}
+```
+
+And now we are officially ready to start playing around with the memory!
