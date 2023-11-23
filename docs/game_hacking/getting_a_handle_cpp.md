@@ -127,7 +127,7 @@ First we find the window with the name "game.exe", then we use it to get the pro
 
 Before you run this program, make sure you compile and run the source code of our target program shown at the very start of this post. If everything goes as planned, you should see this:
 
-![handle](/assets/images/external-handle.png)
+![handle](/assets/images/game_hacking/external_cpp/external-handle.png)
 
 Great, we successfully got the handle to our game!
 

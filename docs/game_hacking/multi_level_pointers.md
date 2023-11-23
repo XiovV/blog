@@ -99,19 +99,19 @@ int main()
 ## Testing with Cheat Engine
 This is what the output should be after we run our program (your addresses will probably differ):
 
-![mlp console](/assets/images/mlp-console1.png)
+![mlp console](/assets/images/game_hacking/multi_level_pointers/mlp-console1.png)
 
 Perfect, everything seems to be running, let's have some fun with Cheat Engine now. Let's add the primaryWeaponAmmo address into CE:
 
-![mlp cheat engine](/assets/images/mlp-ce1.png)
+![mlp cheat engine](/assets/images/game_hacking/multi_level_pointers/mlp-ce1.png)
 
 Great! After typing in the address we see that Cheat Engine resolves it to the value 100, which is exactly what we set in our `Ammo` struct. Now let's restart our program and see what's going to happen:
 
-![mlp console](/assets/images/mlp-console2.png)
+![mlp console](/assets/images/game_hacking/multi_level_pointers/mlp-console2.png)
 
 Hmm, okay, our localPlayer pointer is the same, but our primaryWeaponAmmo address has changed. Let's re-attach Cheat Engine to our program and see what's going to happen:
 
-![mlp cheat engine](/assets/images/mlp-ce2.png)
+![mlp cheat engine](/assets/images/game_hacking/multi_level_pointers/mlp-ce2.png)
 
 Uh oh! That's not good. As the address of the primaryWeaponAmmo variable has changed, the address we used previously doesn't work anymore. This is due to Dynamic Memory Allocation (DMA).
 
@@ -134,7 +134,7 @@ And that's a great question, which we have the answer to: We defined `localPlaye
 ## Using multi-level pointers
 When we ran our program for the second time, we noted that the `localPlayer` pointer has stayed the same. Which is great news for us, because we can use that fact to find our primaryWeaponAmmo value. Let's see how that's done in Cheat Engine:
 
-![mlp cheat engine](/assets/images/mlp-ce3.png)
+![mlp cheat engine](/assets/images/game_hacking/multi_level_pointers/mlp-ce3.png)
 
 We put in the localPlayer address in the bottom field, then we add all four of our offsets. Cheat Engine gives us a breakdown of what it's doing.
 
@@ -147,11 +147,11 @@ Now, if we were to restart our program, all of these addresses (0x00EFB6B0, 0x00
 
 As we do have a static base address and the offsets, we can safely assume that Cheat Engine will successfully get our primaryWeaponAmmo value even after we restart our program. Restart your program and re-attach Cheat Engine:
 
-![mlp cheat engine](/assets/images/mlp-ce4.png)
+![mlp cheat engine](/assets/images/game_hacking/multi_level_pointers/mlp-ce4.png)
 
 And sure enough, it works! Let's take a look at how CE is resolving the pointers:
 
-![mlp cheat engine](/assets/images/mlp-ce5.png)
+![mlp cheat engine](/assets/images/game_hacking/multi_level_pointers/mlp-ce5.png)
 
 As you can see, the pointers are indeed different, but despite that CE still managed to get our primaryWeaponAmmo value correctly. It was able to do that because it created a path from our static localPlayer address to the primaryWeaponAmmo variable using the offsets.
 

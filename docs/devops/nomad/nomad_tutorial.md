@@ -123,12 +123,12 @@ nomad job run whoami.nomad
 
 While the job is running, you can go to the WebUI and watch as the containers are being deployed (Jobs -> whoami). If everything has gone well, you should see this:
 
-![whoami job status](/assets/images/whoami_deployment.png#center)
+![whoami job status](/assets/images/devops/nomad/whoami_deployment.png)
 
 If you want to, you can run `docker ps` on your **Client** machines, and you should be able to see the containers we just deployed.
 
-![lab1](/assets/images/lab1.png#center)
-![lab2](/assets/images/lab2.png#center)
+![lab1](/assets/images/devops/nomad/lab1.png#center)
+![lab2](/assets/images/devops/nomad/lab2.png#center)
 
 As you can see, Nomad deployed 2 containers on my lab1 VM, and 3 containers on my lab2 VM. Pretty cool, right?
 
@@ -191,34 +191,34 @@ job "traefik" {
   }
 }
 ```
-Make sure you use your own email address and the IP address of your own Nomad node running in **Server** mode.\
+Make sure you use your own email address and the IP address of your own Nomad node running in **Server** mode.
 Now deploy traefik by running the following command:
 ```shell
 nomad job run traefik.nomad
 ```
 Nomad will pick a server to run traefik on, and once it successfully deploys it, visit the dashboard on port 8080. If you want to find out where Nomad deployed traefik, go to Nomad's WebUI -> Jobs -> traefik -> Recent Allocations -> Click on the most recent allocation -> Scroll until you see Ports:
 
-![traefik ports](/assets/images/traefik_ports.png)
+![traefik ports](/assets/images/devops/nomad/traefik_ports.png)
 
 In my case Nomad deployed traefik on 192.168.0.42 (which is my lab2 VM), so let's visit the dashboard at http://192.168.0.42:8080:
 
-![traefik dashboard](/assets/images/traefik_dashboard.png)
+![traefik dashboard](/assets/images/devops/nomad/traefik_dashboard.png)
 
 The dashboard loaded successfully which is a good sign, let's now click on the HTTP tab so we can check if traefik wired everything up correctly. Once you've clicked on the HTTP tab, click on the router that's marked with the green TLS icon:
 
-![http tab](/assets/images/http_tab.png)
+![http tab](/assets/images/devops/nomad/http_tab.png)
 
 Now click on the whoami-demo service:
 
-![traefik service](/assets/images/traefik_service.png)
+![traefik service](/assets/images/devops/nomad/traefik_service.png)
 
 On the right you can see our 5 containers we deployed earlier, this means that traefik has managed to successfully "wire" everything up:
 
-![traefik servers](/assets/images/traefik_servers.png)
+![traefik servers](/assets/images/devops/nomad/traefik_servers.png)
 
 ## Testing
 Now it's time to test if everything works. Head on over to https://yourdomain.com (make sure port 443 is open!) and you should see something like this:
-![whoami](/assets/images/whoami.png)
+![whoami](/assets/images/devops/nomad/whoami.png)
 Look at the Hostname field at the top, every time you refresh the page its value will change, which means that traefik is routing requests to different containers, which is exactly what we want.
 
 ## The End
