@@ -1,7 +1,9 @@
-# Introduction to multi-level pointers (work in progress)
+# Introduction to multi-level pointers 
 
 ## What are multi-level pointers?
-Multi-level pointers (MLPs) are actually really simple, as tricky and complicated as they might seem when you first start learning about them (don't worry if you're struggling, I did too). MLPs are just pointers pointing to other pointers, it's essentially a chain of pointers. It should make more sense after taking a look at the example below.
+As tricky and complicated as multi-level pointers (MLPs) might seem when you first start learning about them (don't worry if you're struggling, I did too), they are actually quite simple. MLPs are just pointers pointing to other pointers, it's essentially a chain of pointers. It should make more sense after taking a look at the example below.
+
+You will encounter MLPs quite often during your game hacking journey, so it's essential that you understand them.
 
 ## Example
 Consider the following code:
