@@ -153,6 +153,9 @@ And sure enough, it works! Let's take a look at how CE is resolving the pointers
 
 As you can see, the pointers are indeed different, but despite that CE still managed to get our primaryWeaponAmmo value correctly. It was able to do that because it created a path from our static localPlayer address to the primaryWeaponAmmo variable using the offsets.
 
+## The End
+And there you go! Now you (hopefully) understand multi-level pointers. If you don't, feel free to re-read this post multiple times and use the resources I linked below.
+
 ## Resources
 - [Multi Level Pointers In Depth Analysis Tutorial](https://www.youtube.com/watch?v=0iOxUOaogb8)
 - [Dynamic Memory Allocation by Game Hacking Academy](https://gamehacking.academy/lesson/2/8)
